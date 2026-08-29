@@ -1,0 +1,56 @@
+---
+import { site } from "../lib/site";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  wide?: boolean;
+}
+
+const { title, description, wide = false } = Astro.props;
+const ogImage = new URL("/og.png", Astro.site).href;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <header class:list={["wrap", wide && "wrap-wide"]}>
+      <a class="mark" href="/">
+        <img src="/logo2.png" alt="" width="30" height="30" />
+        <span class="wordmark">0x<span>Egg</span></span>
+      </a>
+    </header>
+
+    <slot />
+
+    <footer class:list={["wrap", wide && "wrap-wide"]}>
+      <span>{site.name}</span>
+      <nav>
+        <a href={`mailto:${site.email}`}>Email</a>
+        <a href={site.github}>GitHub</a>
+        <a href={site.social}>{site.socialLabel}</a>
+      </nav>
+    </footer>
+  </body>
+</html>

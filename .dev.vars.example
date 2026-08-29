@@ -1,0 +1,4 @@
+# Copy to .dev.vars and fill in. Get a key at https://etherscan.io/apis
+ETHERSCAN_API_KEY=
+# Set to "true" only on a paid Etherscan plan; adds Base, OP, BNB Chain, Avalanche.
+ETHERSCAN_PAID_PLAN=false

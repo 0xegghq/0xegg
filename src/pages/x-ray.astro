@@ -1,0 +1,535 @@
+---
+import Base from "../layouts/Base.astro";
+import ChainBadge from "../components/ChainBadge.astro";
+import { CHAIN_ICONS } from "../lib/chain-icons";
+import { site } from "../lib/site";
+import { CHAINS, FREE_CHAINS } from "../lib/xray";
+
+const title = "Wallet X-Ray — 0xEgg";
+const description =
+  "Paste an EVM address, get its activity profile across eight chains. Read-only, no wallet connection.";
+const chainIconData = CHAIN_ICONS;
+---
+
+<Base title={title} description={description} wide>
+  <main class="wrap wrap-wide">
+    <section class="head">
+      <p class="kicker">Wallet X-Ray</p>
+      <h1>What has this address<br />actually done?</h1>
+      <p class="lede">
+        Paste any EVM address. You get its full activity profile across {FREE_CHAINS.length}
+        {" "}chains — first and last activity, transaction counts, gas burned,
+        contracts touched, and contracts deployed. Read-only. No wallet
+        connection, nothing stored.
+      </p>
+
+      <form id="form" autocomplete="off">
+        <input
+          id="address"
+          type="text"
+          name="address"
+          placeholder="0x0000000000000000000000000000000000000000"
+          spellcheck="false"
+          aria-label="EVM address"
+        />
+        <button class="btn btn-primary" type="submit" id="submit">Scan</button>
+      </form>
+      <p class="hint chain-strip" id="hint" aria-label="Supported chains">
+        {FREE_CHAINS.map((chain) => {
+          const icon = CHAIN_ICONS[chain.id];
+          return <ChainBadge name={chain.name} logo={icon.src} color={icon.color} />;
+        })}
+      </p>
+    </section>
+
+    <section id="output" aria-live="polite"></section>
+
+    <section class="colophon">
+      <h2>How it works</h2>
+      <p>
+        One request to a Cloudflare Worker, which fans out across the Etherscan
+        V2 multichain API — a single key covering every chain above. Full
+        transaction history per chain is pulled in one call each and reduced
+        server-side, so the API key never reaches your browser. Calls are
+        serialized through a throttle to stay inside the 3 requests/second free
+        tier, which is why a scan takes a few seconds rather than being instant.
+      </p>
+      <p>
+        <span class="chain-list" aria-label="Paid-plan chains">
+          {CHAINS.filter((chain) => chain.paidOnly).map((chain) => {
+            const icon = CHAIN_ICONS[chain.id];
+            return <ChainBadge name={chain.name} logo={icon.src} color={icon.color} />;
+          })}
+        </span>{" "}sit behind Etherscan's paid plan, so they are off by default
+        rather than silently failing. One environment variable switches them on.
+      </p>
+      <p>
+        Built by {site.name}. <a href={site.tool.repo}>Source is open</a> — if
+        you want something like this for your own data,{" "}
+        <a href={`mailto:${site.email}`}>get in touch</a>.
+      </p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  main {
+    padding-bottom: 40px;
+  }
+
+  .head {
+    padding-top: 24px;
+  }
+
+  h1 {
+    font-size: clamp(34px, 5.5vw, 52px);
+  }
+
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 32px;
+  }
+
+  input {
+    flex: 1 1 420px;
+    min-width: 0;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 15px;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  input::placeholder {
+    color: #4d4d57;
+  }
+
+  .hint {
+    margin: 12px 0 0;
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+
+  .chain-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chain-list {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    vertical-align: middle;
+  }
+
+  .hint.error {
+    color: var(--danger);
+  }
+
+  .colophon {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    max-width: 70ch;
+  }
+
+  .colophon p {
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .colophon a {
+    color: var(--accent);
+  }
+</style>
+
+<style is:global>
+  /* Result markup is built by the script below, so these can't be scoped. */
+  .totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .totals li {
+    background: var(--surface);
+    padding: 18px 20px;
+  }
+
+  .totals dt {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .totals dd {
+    margin: 4px 0 0;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .scanned {
+    margin: 16px 0 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .chains {
+    margin: 32px 0 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .chain {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 20px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s ease;
+  }
+
+  .chain:last-child {
+    border-bottom: none;
+  }
+
+  .chain:hover {
+    background: color-mix(in srgb, var(--chain-color, var(--accent)) 7%, var(--surface));
+  }
+
+  .chain.idle {
+    background: var(--bg);
+  }
+
+  .chain-name {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .chain-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chain-logo {
+    display: block;
+    flex: 0 0 auto;
+    border-radius: 5px;
+    transition: transform 0.15s ease;
+  }
+
+  .chain:hover .chain-label {
+    color: var(--chain-color, var(--accent));
+  }
+
+  .chain:hover .chain-logo {
+    transform: scale(1.08);
+  }
+
+  .chain-name a {
+    color: var(--chain-color, var(--accent));
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 400;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .chain.idle .chain-name {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 0;
+  }
+
+  .stats > div {
+    min-width: 84px;
+  }
+
+  .stats dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .stats dd {
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chain-note {
+    align-self: center;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .chain-note.bad {
+    color: var(--danger);
+  }
+
+  .flag {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .status {
+    margin: 40px 0 0;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .status.bad {
+    color: var(--danger);
+  }
+
+  @media (max-width: 620px) {
+    .chain {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>
+
+<script define:vars={{ chainIconData }}>
+  const form = document.getElementById("form") as HTMLFormElement;
+  const input = document.getElementById("address") as HTMLInputElement;
+  const submit = document.getElementById("submit") as HTMLButtonElement;
+  const hint = document.getElementById("hint") as HTMLParagraphElement;
+  const output = document.getElementById("output") as HTMLElement;
+  const defaultHint = hint.innerHTML;
+
+  type ChainIcon = { src: string; color: string };
+  const chainIcons = chainIconData as Record<string, ChainIcon>;
+
+  const isAddress = (v: string) => /^0x[0-9a-fA-F]{40}$/.test(v.trim());
+
+  let currentAddress = "";
+
+  const escape = (v: unknown) =>
+    String(v).replace(
+      /[&<>"']/g,
+      (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+          c
+        ]!,
+    );
+
+  const num = (n: number) => n.toLocaleString("en-US");
+
+  const date = (unix: number | null) =>
+    unix
+      ? new Date(unix * 1000).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "—";
+
+  const age = (unix: number | null) => {
+    if (!unix) return "—";
+    const days = Math.floor((Date.now() / 1000 - unix) / 86400);
+    if (days < 1) return "today";
+    if (days < 60) return `${days}d ago`;
+    if (days < 730) return `${Math.floor(days / 30)}mo ago`;
+    return `${(days / 365).toFixed(1)}y ago`;
+  };
+
+  type ChainReport = {
+    chain: { id: number; name: string; symbol: string; explorer: string };
+    active: boolean;
+    balance: string | null;
+    txCount: number;
+    truncated: boolean;
+    firstSeen: number | null;
+    lastSeen: number | null;
+    outgoing: number;
+    incoming: number;
+    failed: number;
+    gasSpent: string;
+    contractsUsed: number;
+    contractsDeployed: number;
+    error: string | null;
+  };
+
+  type Report = {
+    address: string;
+    scannedAt: number;
+    chains: ChainReport[];
+    totals: {
+      activeChains: number;
+      txCount: number;
+      contractsUsed: number;
+      contractsDeployed: number;
+      firstSeen: number | null;
+      lastSeen: number | null;
+    };
+  };
+
+  function stat(label: string, value: string) {
+    return `<div><dt>${label}</dt><dd>${value}</dd></div>`;
+  }
+
+  function chainVisual(chain: ChainReport["chain"]) {
+    const icon = chainIcons[String(chain.id)];
+    const color = icon?.color ?? "#f5c451";
+    const logo = icon
+      ? `<img class="chain-logo" src="${escape(icon.src)}" alt="" aria-hidden="true" width="20" height="20" />`
+      : "";
+
+    return {
+      style: `--chain-color: ${escape(color)}`,
+      label: `<span class="chain-label">${logo}<span>${escape(chain.name)}</span></span>`,
+    };
+  }
+
+  function renderChain(c: ChainReport) {
+    const link = `${c.chain.explorer}/address/`;
+    const visual = chainVisual(c.chain);
+
+    if (c.error) {
+      return `<li class="chain idle" style="${visual.style}">
+        <div class="chain-name">${visual.label}</div>
+        <p class="chain-note bad">${escape(c.error)}</p>
+      </li>`;
+    }
+
+    if (!c.active) {
+      return `<li class="chain idle" style="${visual.style}">
+        <div class="chain-name">${visual.label}</div>
+        <p class="chain-note">No activity</p>
+      </li>`;
+    }
+
+    const flag = c.truncated
+      ? `<span class="flag">History capped at the oldest 2,000 transactions, so the counts above are a floor. First and last activity are exact.</span>`
+      : "";
+
+    return `<li class="chain" style="${visual.style}">
+      <div class="chain-name">
+        ${visual.label}
+        <a href="${escape(link)}${escape(currentAddress)}" rel="noopener noreferrer" target="_blank">explorer &#8599;</a>
+      </div>
+      <div>
+        <dl class="stats">
+          ${stat("Balance", `${escape(c.balance ?? "—")} ${escape(c.chain.symbol)}`)}
+          ${stat("Txs", num(c.txCount))}
+          ${stat("Sent", num(c.outgoing))}
+          ${stat("Received", num(c.incoming))}
+          ${stat("Failed", num(c.failed))}
+          ${stat("Gas spent", `${escape(c.gasSpent)} ${escape(c.chain.symbol)}`)}
+          ${stat("Contracts", num(c.contractsUsed))}
+          ${stat("Deployed", num(c.contractsDeployed))}
+          ${stat("First", date(c.firstSeen))}
+          ${stat("Last", age(c.lastSeen))}
+        </dl>
+        ${flag}
+      </div>
+    </li>`;
+  }
+
+  function render(report: Report) {
+    const t = report.totals;
+    const totals = `<ul class="totals">
+      <li><dt>Chains active</dt><dd>${t.activeChains} / ${report.chains.length}</dd></li>
+      <li><dt>Transactions</dt><dd>${num(t.txCount)}</dd></li>
+      <li><dt>Contracts used</dt><dd>${num(t.contractsUsed)}</dd></li>
+      <li><dt>Contracts deployed</dt><dd>${num(t.contractsDeployed)}</dd></li>
+      <li><dt>First seen</dt><dd>${date(t.firstSeen)}</dd></li>
+      <li><dt>Last seen</dt><dd>${age(t.lastSeen)}</dd></li>
+    </ul>`;
+
+    output.innerHTML = `
+      ${totals}
+      <p class="scanned">${escape(report.address)}</p>
+      <ul class="chains">${report.chains.map(renderChain).join("")}</ul>
+    `;
+  }
+
+  function status(message: string, bad = false) {
+    output.innerHTML = `<p class="status${bad ? " bad" : ""}">${escape(message)}</p>`;
+  }
+
+  async function run(address: string) {
+    currentAddress = address;
+    hint.innerHTML = defaultHint;
+    hint.classList.remove("error");
+    submit.disabled = true;
+    submit.textContent = "Scanning…";
+    status("Reading eight chains. This takes a few seconds — the free API tier is rate limited.");
+
+    try {
+      const res = await fetch(`/api/xray?address=${encodeURIComponent(address)}`);
+      const body = await res.json();
+      if (!res.ok) {
+        status(body.error ?? `Scan failed (HTTP ${res.status}).`, true);
+        return;
+      }
+      render(body as Report);
+    } catch {
+      status("Could not reach the scanner. Check your connection and try again.", true);
+    } finally {
+      submit.disabled = false;
+      submit.textContent = "Scan";
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const address = input.value.trim();
+    if (!isAddress(address)) {
+      hint.textContent = "That isn't a valid EVM address — 0x followed by 40 hex characters.";
+      hint.classList.add("error");
+      return;
+    }
+    // Keep the address in the URL so a result is a shareable link.
+    history.replaceState(null, "", `?address=${address}`);
+    void run(address);
+  });
+
+  // Deep link support: /x-ray?address=0x... scans on load.
+  const preset = new URLSearchParams(location.search).get("address")?.trim();
+  if (preset && isAddress(preset)) {
+    input.value = preset;
+    void run(preset);
+  }
+</script>

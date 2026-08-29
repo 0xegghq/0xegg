@@ -1,0 +1,264 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../lib/site";
+
+const services = [
+  {
+    title: "Indexers and data pipelines",
+    body: "Chain data into a queryable database. Event ingestion, backfills, reorg handling — the parts that break at 3am.",
+  },
+  {
+    title: "Dashboards and internal tools",
+    body: "The admin panel, the ops view, the thing your team currently does in a spreadsheet.",
+  },
+  {
+    title: "Wallet and protocol integrations",
+    body: "Read-only profilers, claim flows, portfolio views, multi-chain balance aggregation.",
+  },
+  {
+    title: "APIs and webhooks",
+    body: "Normalized feeds from messy sources. Rate limiting, caching, and docs your users won't email you about.",
+  },
+  {
+    title: "Frontends for protocols that have none",
+    body: "Working contracts, no interface. That's a two-week problem, not a hire.",
+  },
+];
+
+const process = [
+  {
+    title: "Scoped, fixed-price projects",
+    body: "We agree on what ships and what it costs before I start. No hourly creep, no surprise invoices.",
+  },
+  {
+    title: "Two-week first milestone",
+    body: "Something running in your hands within two weeks, always. If it isn't working by then, you've lost two weeks instead of a quarter.",
+  },
+  {
+    title: "You own everything",
+    body: "Code, infra, repos. Handed over clean, documented, and deployable without me.",
+  },
+];
+
+const audience = [
+  "Protocols with working contracts and no frontend",
+  "Infra startups whose roadmap is longer than their eng team",
+  "Data and analytics products that need another pair of hands on the pipeline",
+  "Agencies with crypto overflow they'd rather subcontract than turn down",
+];
+
+const title = "0xEgg — on-chain tooling, shipped fast";
+const description =
+  "I build the indexers, dashboards, and data pipelines that crypto teams need but don't have the headcount to build.";
+---
+
+<Base title={title} description={description}>
+  <main>
+    <section class="wrap hero">
+      <h1>On-chain tooling,<br />shipped fast.</h1>
+      <p class="lede">
+        I build the indexers, dashboards, and data pipelines that crypto teams
+        need but don't have the headcount to build. Senior, solo, and native to
+        this stack &mdash; you talk to the person writing the code.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href={site.tool.url}>See something I built</a>
+        <a class="btn" href="#contact">Start a project</a>
+      </div>
+    </section>
+
+    <section class="wrap section" id="build">
+      <p class="kicker">What I build</p>
+      <ul class="cards">
+        {
+          services.map((s) => (
+            <li class="card">
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="wrap section" id="proof">
+      <p class="kicker">Proof, not promises</p>
+      <div class="panel">
+        <h2>{site.tool.name} &mdash; a free, {site.tool.blurb}.</h2>
+        <p>{site.tool.input}, get {site.tool.output}. No wallet connection.</p>
+        <p class="muted">
+          Built in {site.tool.buildDays} days. Source is open. It isn't a
+          business &mdash; it's the fastest way to show you what I'd build for
+          you.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href={site.tool.url}>Try it</a>
+          <a class="btn" href={site.tool.repo}>Read the code</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section" id="process">
+      <p class="kicker">How it works</p>
+      <ul class="cards cards-3">
+        {
+          process.map((p) => (
+            <li class="card">
+              <h3>{p.title}</h3>
+              <p>{p.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="pricing">
+        Typical engagement: <strong>${site.projectLow}&ndash;${site.projectHigh}</strong>,
+        two to six weeks. Hourly available at{" "}
+        <strong>${site.hourlyRate}/hr</strong> for ongoing work.
+      </p>
+    </section>
+
+    <section class="wrap section" id="fit">
+      <p class="kicker">Who this is for</p>
+      <ul class="list">
+        {audience.map((a) => <li>{a}</li>)}
+      </ul>
+      <p class="caveat">
+        <strong>Not for you if</strong> you need audited smart contract work. I
+        build the layer above the contracts &mdash; data, interfaces, tooling
+        &mdash; and I'll tell you honestly when something needs a specialist
+        instead.
+      </p>
+    </section>
+
+    <section class="wrap section" id="contact">
+      <p class="kicker">Start a project</p>
+      <h2 class="close">Tell me what's stuck.</h2>
+      <p class="lede">
+        If I can help, you'll get a scope and a price within 48 hours. If I
+        can't, I'll say so and point you somewhere better.
+      </p>
+      <a class="btn btn-primary" href={`mailto:${site.email}`}>{site.email}</a>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .hero {
+    padding-top: 48px;
+    padding-bottom: 40px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* An odd-numbered last card spans the row instead of leaving a gap. */
+  .cards > li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .cards-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cards-3 > li:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+
+  .card {
+    background: var(--surface);
+    padding: 22px;
+  }
+
+  .card p {
+    margin: 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .panel {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 28px;
+  }
+
+  .panel p {
+    margin: 0 0 12px;
+    color: var(--muted);
+  }
+
+  .panel .muted {
+    font-size: 15px;
+  }
+
+  .panel .actions {
+    margin-top: 20px;
+  }
+
+  .pricing {
+    margin: 24px 0 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .pricing strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .list li {
+    position: relative;
+    padding: 10px 0 10px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .list li::before {
+    content: "\2192";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .caveat {
+    margin: 24px 0 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .caveat strong {
+    color: var(--text);
+  }
+
+  .close {
+    font-size: clamp(26px, 4vw, 32px);
+    margin-bottom: 16px;
+  }
+
+  #contact .btn {
+    margin-top: 28px;
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 620px) {
+    .cards,
+    .cards-3 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
