@@ -14,7 +14,7 @@ export const site = {
     input: "Paste an address",
     output: "its full activity profile across eight chains",
     buildDays: "2",
-    url: "/x-ray",
+    url: "https://xray.0xegg.com",
     repo: "https://github.com/0xegghq/wallet-x-ray",
   },
 };
