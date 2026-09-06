@@ -1,0 +1,60 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getAllPosts } from "../../lib/blog";
+
+export const prerender = true;
+
+const posts = getAllPosts();
+const title = "Engineering & Blockchain Research Blog | 0xEgg";
+const description = "Technical articles on EVM indexing, multi-chain RPC architectures, smart contract security, and Web3 infrastructure from 0xEgg.";
+---
+
+<Base title={title} description={description}>
+  <main class="wrap" style="padding-top: 48px; padding-bottom: 64px;">
+    <header style="margin-bottom: 48px; border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+      <div style="display: inline-block; font-family: var(--mono); font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;">
+        // DISPATCHES &amp; RESEARCH
+      </div>
+      <h1 style="font-family: var(--pixel); font-size: clamp(32px, 5vw, 44px); margin: 0 0 12px; color: var(--text);">
+        0xEgg Engineering Blog
+      </h1>
+      <p style="color: var(--muted); margin: 0; font-size: 17px; max-width: 600px;">
+        Deep dives on EVM node clustering, multi-chain event extraction, smart contract verification, and decentralized data systems.
+      </p>
+    </header>
+
+    <div style="display: flex; flex-direction: column; gap: 32px;">
+      {posts.map((post) => (
+        <article style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; transition: border-color 0.15s ease;">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 12px;">
+            <time datetime={post.date}>{post.date}</time>
+            <span>//</span>
+            <span>{post.author}</span>
+            {post.tags.length > 0 && (
+              <>
+                <span>//</span>
+                <span style="color: var(--accent);">{post.tags.join(', ')}</span>
+              </>
+            )}
+          </div>
+          <h2 style="font-family: var(--pixel); font-size: 24px; margin: 0 0 12px; color: var(--text);">
+            <a href={`/blog/${post.slug}/`} style="text-decoration: none; color: inherit;">
+              {post.title}
+            </a>
+          </h2>
+          <p style="color: var(--muted); margin: 0 0 20px; font-size: 15px; line-height: 1.6;">
+            {post.description || post.excerpt}
+          </p>
+          <div>
+            <a
+              href={`/blog/${post.slug}/`}
+              style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-family: var(--mono); font-size: 14px; text-decoration: none; font-weight: 600;"
+            >
+              Read full post →
+            </a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</Base>

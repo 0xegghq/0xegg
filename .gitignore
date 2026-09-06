@@ -28,3 +28,6 @@ pnpm-debug.log*
 
 # Cloudflare local state
 .wrangler/
+
+# sudonotes ideas
+IDEAS.md

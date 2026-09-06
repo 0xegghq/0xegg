@@ -1,0 +1,86 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getAllPosts } from "../../lib/blog";
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  const posts = getAllPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const postUrl = `https://0xegg.com/blog/${post.slug}/`;
+
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.title,
+  description: post.description,
+  datePublished: post.date,
+  dateModified: post.updated || post.date,
+  author: {
+    "@type": "Organization",
+    name: post.author,
+    url: "https://0xegg.com",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "0xEgg",
+    url: "https://0xegg.com",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://0xegg.com/logo2.png",
+    },
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": postUrl,
+  },
+  keywords: post.tags.join(", "),
+};
+---
+
+<Base title={`${post.title} | 0xEgg Blog`} description={post.description}>
+  <script type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />
+  <main class="wrap" style="padding-top: 40px; padding-bottom: 72px;">
+    <nav style="margin-bottom: 32px;">
+      <a
+        href="/blog/"
+        style="color: var(--accent); font-family: var(--mono); font-size: 14px; text-decoration: none;"
+      >
+        ← Back to all posts
+      </a>
+    </nav>
+
+    <article class="blog-post">
+      <header style="margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 28px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 14px;">
+          <time datetime={post.date}>{post.date}</time>
+          {post.updated && <span>(Updated: {post.updated})</span>}
+          <span>//</span>
+          <span>{post.author}</span>
+          {post.tags.length > 0 && (
+            <>
+              <span>//</span>
+              <span style="color: var(--accent);">{post.tags.join(" / ")}</span>
+            </>
+          )}
+        </div>
+
+        <h1 style="font-family: var(--pixel); font-size: clamp(28px, 4.5vw, 40px); margin: 0 0 16px; color: var(--text); line-height: 1.25;">
+          {post.title}
+        </h1>
+
+        <p style="color: var(--muted); font-size: 18px; line-height: 1.6; margin: 0;">
+          {post.description}
+        </p>
+      </header>
+
+      <div class="blog-content" set:html={post.contentHtml} />
+    </article>
+  </main>
+</Base>

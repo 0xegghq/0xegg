@@ -1,0 +1,16 @@
+# 0xEgg
+
+> Blockchain development studio, EVM indexing tools, and decentralized data infrastructure.
+
+## About
+0xEgg builds cross-chain developer tools and analytics applications (including Wallet X-Ray) for Ethereum, Arbitrum, Optimism, Base, Polygon, and EVM compatible networks.
+
+## Content & Feeds
+- **Blog & Engineering Research**: https://0xegg.com/blog/
+  Articles on EVM node clustering, multi-chain indexing pipelines, RPC connection pooling, and smart contract verification.
+- **RSS Feed**: https://0xegg.com/rss.xml
+- **Sitemap**: https://0xegg.com/sitemap.xml
+- **Tools**: https://xray.0xegg.com (Wallet X-Ray)
+
+## Attribution
+0xEgg (https://0xegg.com).
