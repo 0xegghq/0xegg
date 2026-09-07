@@ -15,7 +15,7 @@ Building high-throughput tooling that monitors wallet activities across networks
 
 Decentralized networks expose standard endpoints adhering to the official [Ethereum JSON-RPC Execution APIs](https://github.com/ethereum/execution-apis). However, relying on a single upstream node provider guarantees downtime during network congestion spikes.
 
-Resilient multi-chain ingestors implement intelligent client-side routing. By wrapping providers conforming to the [EIP-1193 JavaScript Provider Standard](https://eips.ethereum.org/EIPS/eip-1193) with adaptive latency scoring, applications dynamically shift high-frequency `eth_getLogs` and `eth_getBlockByNumber` requests to the healthiest node in the pool.
+Resilient multi-chain ingestors implement intelligent client-side routing. By wrapping providers conforming to the [EIP-1193 JavaScript Provider Standard](https://eips.ethereum.org/EIPS/eip-1193) with adaptive latency scoring, applications dynamically shift high-frequency `eth_getLogs` and `eth_getBlockByNumber` requests to the healthiest node in the pool. Each upstream keeps its own inflight budget and error window. A provider that starts returning `-32005` rate-limit errors, or whose `eth_blockNumber` stalls, is marked cold and left out of the next batch while a probe request continues in the background. Batch JSON-RPC stays scoped to one chain and one node so a single malformed response cannot mix receipts from two networks in the same decode pass.
 
 | Pipeline Component | Primary Function | Failure Mitigation |
 | :--- | :--- | :--- |
@@ -35,8 +35,10 @@ Key architectural requirements for scalable EVM event extraction:
 - **WebSocket Streaming with Heartbeat Validation**: Maintain persistent socket subscriptions for `newHeads` and `logs` topics while implementing automatic reconnection on missed pings.
 - **Cryptographic Verification**: Validate block header hashes against consensus signatures using standards defined by the [W3C Web Cryptography Group](https://www.w3.org/community/crypto/).
 
+Bloom pre-filtering is a cheap negative check, not a proof that logs exist. A header whose bloom cannot contain the watched topics is skipped; a header that might contain them still needs `eth_getLogs` or a local receipt scan. WebSocket `newHeads` subscriptions cut poll chatter but they are not durable: after a reconnect the worker walks back a confirmation window of block hashes and replays any gap before it resumes the live cursor.
+
 ### Managing Reorgs and State Confirmation
 
-Because fast-block rollup networks periodically experience micro-reorganizations, ingestion workers should treat recent blocks as provisional until reaching network-specific finality checkpoints. Storing raw transaction logs with block hash foreign keys ensures that reorged blocks can be pruned atomically without leaving orphaned database state.
+Because fast-block rollup networks periodically experience micro-reorganizations, ingestion workers should treat recent blocks as provisional until reaching network-specific finality checkpoints. Storing raw transaction logs with block hash foreign keys ensures that reorged blocks can be pruned atomically without leaving orphaned database state. A reorg is detected when a newly observed parent hash does not match the hash already stored for that height. The worker then deletes rows whose block hash is no longer on the canonical chain and re-requests those heights, leaving finalized windows untouched. Confirmation depth is a per-network constant, not a global default copied from mainnet onto a fast rollup.
 
 Engineered with modular node fallbacks and deterministic confirmation windows, EVM ingestion engines deliver sub-second multi-chain analytics at production scale.
