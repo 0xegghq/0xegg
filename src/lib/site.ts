@@ -3,8 +3,6 @@ export const site = {
   name: "0xEgg",
   email: "hi@0xegg.com",
   github: "https://github.com/0xegghq",
-  social: "https://x.com/TODO",
-  socialLabel: "X",
   hourlyRate: "125",
   projectLow: "8,000",
   projectHigh: "25,000",
